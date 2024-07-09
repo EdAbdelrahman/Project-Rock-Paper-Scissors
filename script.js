@@ -1,81 +1,94 @@
- // Step 2: Function to get a random choice for the Computer
-
- function getComputerChoice() {
+// Function to get a random choice for the computer
+function getComputerChoice() {
     const choices = ['rock', 'paper', 'scissors'];
     const randomIndex = Math.floor(Math.random() * choices.length);
     return choices[randomIndex];
- }
+}
 
- // Test the Function
- console.log(getComputerChoice()) // Should log "rock", "paper", or "scissors"
-
-
- // Step 3 : Write the logic to get the Human choice
-
- function getHumanChoice() {
-    const choice = prompt("Please enter rock, paper, scissors:").toLowerCase();
-    if(['rock', 'paper', 'scissors'].includes(choice)) {
-        return choice;
-    } else {
-        alert("Invalid CHoice. Please Try Again");
-        return getHumanChoice();
-    }
- }
-
-  // Test the Function
-console.log(getHumanChoice())
-
-// Step 4: Declare the Players score vairiables
-
+// Declare the players' score variables
 let humanScore = 0;
 let computerScore = 0;
 
-// Step 5: Write the logic to play a single round
+// Function to play a single round
 function playRound(humanChoice, computerChoice) {
-    humanChoice = humanChoice.toLowerCase() // Make human choice lowerCase
+    const resultDiv = document.getElementById('result');
+    humanChoice = humanChoice.toLowerCase();
 
-    if (humanChoice == computerChoice) {
-        console.log(`it's a tie! Both chose ${humanChoice}`);
+    if (humanChoice === computerChoice) {
+        resultDiv.textContent = `It's a tie! Both chose ${humanChoice}.`;
     } else if (
         (humanChoice === 'rock' && computerChoice === 'scissors') ||
         (humanChoice === 'paper' && computerChoice === 'rock') ||
         (humanChoice === 'scissors' && computerChoice === 'paper')
     ) {
         humanScore++;
-        console.log(`You win ${humanChoice} beats ${computerChoice}`);
+        resultDiv.textContent = `You win! ${humanChoice} beats ${computerChoice}.`;
     } else {
         computerScore++;
-        console.log(`You lose ${computerChoice} Beats ${humanChoice}`);
+        resultDiv.textContent = `You lose! ${computerChoice} beats ${humanChoice}.`;
+    }
+
+    updateScore();
+
+    if (humanScore === 5 || computerScore === 5) {
+        declareWinner();
     }
 }
-  // Test the Function
-  const humanSelection = getHumanChoice()
-  const computerSelection = getComputerChoice()
-  playRound(humanSelection, computerSelection);
 
-  // Step 6 : Write the logic to play the entire game
+// Function to update the score display
+function updateScore() {
+    const scoreDiv = document.getElementById('score');
+    scoreDiv.textContent = `Player: ${humanScore}, Computer: ${computerScore}`;
+}
 
-  function playGame() {
-    // reset scores at the start of each game
-    let humanScore = 0;
-    let computerScore = 0;
-
-    // Play 5 rounds
-    for(let i = 0; i <5; i++) {
-        const humanSelection = getHumanChoice()
-        const computerSelection = getComputerChoice()
-        playRound(humanSelection, computerSelection);
-    }
-
-    // Declare the Winner
+// Function to declare the winner
+function declareWinner() {
+    const resultDiv = document.getElementById('result');
     if (humanScore > computerScore) {
-        console.log(`Congratulations! You won the game with a score of ${humanScore}`);
-    } else if (humanScore < computerScore) {
-        console.log(`You lost the Game. The computer win with score ${computerScore}`);
+        resultDiv.textContent = `Congratulations! You won the game with a score of ${humanScore}.`;
     } else {
-        console.log(`The game is tie with a score ${humanScore} vs ${computerScore}`);
+        resultDiv.textContent = `You lost the game. The computer won with a score of ${computerScore}.`;
     }
-  }
 
-  // Start the Game
-  playGame();
+    // Disable buttons after game ends
+    toggleButtons(true);
+
+    // Show reset button
+    const resetButton = document.createElement('button');
+    resetButton.textContent = 'Play Again';
+    resetButton.id = 'resetButton'; // Add an ID to the reset button
+    resetButton.addEventListener('click', resetGame);
+    document.body.appendChild(resetButton);
+}
+
+// Function to toggle button state
+function toggleButtons(disabled) {
+    document.getElementById('rock').disabled = disabled;
+    document.getElementById('paper').disabled = disabled;
+    document.getElementById('scissors').disabled = disabled;
+}
+
+// Function to reset the game
+function resetGame() {
+    humanScore = 0;
+    computerScore = 0;
+    updateScore();
+    document.getElementById('result').textContent = '';
+
+    // Enable buttons
+    toggleButtons(false);
+
+    // Remove reset button
+    const resetButton = document.getElementById('resetButton'); // Select by ID to ensure the correct button is removed
+    if (resetButton) {
+        document.body.removeChild(resetButton);
+    }
+}
+
+// Event listeners for buttons
+document.getElementById('rock').addEventListener('click', () => playRound('rock', getComputerChoice()));
+document.getElementById('paper').addEventListener('click', () => playRound('paper', getComputerChoice()));
+document.getElementById('scissors').addEventListener('click', () => playRound('scissors', getComputerChoice()));
+
+// Initial call to enable buttons
+toggleButtons(false);
